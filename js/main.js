@@ -239,9 +239,10 @@
     viewport.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") m.hover = true; });
     viewport.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") m.hover = false; });
     section.addEventListener("focusin", (e) => {
-      m.focus = true;
-      const card = e.target.closest(".card");
-      if (card) {
+      // Only hold still for keyboard users on a card; clicking the pause/arrow buttons shouldn't freeze it.
+      const card = e.target.closest(".row-viewport .card");
+      m.focus = !!card && card.matches(":focus-visible");
+      if (m.focus) {
         const r = card.getBoundingClientRect();
         const vr = viewport.getBoundingClientRect();
         if (r.left < vr.left + 20 || r.right > vr.right - 20) {
