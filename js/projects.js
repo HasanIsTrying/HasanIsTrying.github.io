@@ -23,7 +23,7 @@ window.SITE = {
   ],
 
   // Your CV as a PDF in the website folder, e.g. "resume.pdf". Empty hides the download buttons.
-  resume: "hasan_said_resume.pdf",
+  resume: "",
 
   skills: [
     "Python", "Java", "SQL", "JavaScript", "Bash", "C", "C#", "HTML & CSS",
