@@ -133,8 +133,10 @@
   if (SITE.email) contacts.push(["Email", `<a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a>`]);
   if (SITE.phone) contacts.push(["Phone", `<a href="tel:${esc(SITE.phone.replace(/[^\d+]/g, ""))}">${esc(SITE.phone)}</a>`]);
   if (SITE.location) contacts.push(["Location", esc(SITE.location)]);
-  if (SITE.github) contacts.push(["GitHub", `<a href="${esc(SITE.github)}" target="_blank" rel="noopener">${GITHUB_SVG}${esc(host(SITE.github))}</a>`]);
-  if (SITE.linkedin) contacts.push(["LinkedIn", `<a href="${esc(SITE.linkedin)}" target="_blank" rel="noopener">${LINKEDIN_SVG}${esc(host(SITE.linkedin).replace(/^www\./, ""))}</a>`]);
+  // Show just the username; the label already says which site it is.
+  const handle = (url) => host(url).split("/").filter(Boolean).pop();
+  if (SITE.github) contacts.push(["GitHub", `<a href="${esc(SITE.github)}" target="_blank" rel="noopener">${GITHUB_SVG}${esc(handle(SITE.github))}</a>`]);
+  if (SITE.linkedin) contacts.push(["LinkedIn", `<a href="${esc(SITE.linkedin)}" target="_blank" rel="noopener">${LINKEDIN_SVG}${esc(handle(SITE.linkedin))}</a>`]);
   if (SITE.resume) contacts.push(["Resume", `<a href="${esc(SITE.resume)}" download>${DOWNLOAD_SVG}Download PDF</a>`]);
   if (contacts.length) {
     $("#contact-list").innerHTML = contacts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
