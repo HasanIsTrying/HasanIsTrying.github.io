@@ -155,6 +155,7 @@
   const marquees = [];
   let detailOpen = false;
   let pressedCard = null;
+  let restoringFocus = false; // true while focus returns to a card after closing a project
 
   const ROWS = window.ROWS || [{ title: "Projects", ids: PROJECTS.map((p) => p.id) }];
   ROWS.forEach((row, rowIndex) => {
@@ -230,8 +231,9 @@
 
     m.nudge = (dir) => {
       const visibleCards = Math.max(1, Math.floor(viewport.clientWidth / m.step) - 1);
+      // Slide by a screenful, then keep rotating (no extra pause).
       m.tween = { from: m.offset, to: m.offset + dir * m.step * visibleCards, start: performance.now(), duration: 650 };
-      m.holdUntil = performance.now() + 4000;
+      m.holdUntil = 0;
     };
     m.build = build;
 
@@ -241,7 +243,7 @@
     section.addEventListener("focusin", (e) => {
       // Only hold still for keyboard users on a card; clicking the pause/arrow buttons shouldn't freeze it.
       const card = e.target.closest(".row-viewport .card");
-      m.focus = !!card && card.matches(":focus-visible");
+      m.focus = !!card && !restoringFocus && card.matches(":focus-visible");
       if (m.focus) {
         const r = card.getBoundingClientRect();
         const vr = viewport.getBoundingClientRect();
@@ -262,6 +264,8 @@
     if (pauseBtn) {
       pauseBtn.addEventListener("click", () => {
         m.userPaused = !m.userPaused;
+        m.holdUntil = 0; // resume means resume now
+        if (m.userPaused) m.tween = null; // pause means stop now, even mid-slide
         pauseBtn.setAttribute("aria-pressed", String(m.userPaused));
         pauseBtn.setAttribute("aria-label", m.userPaused ? "Resume rotation" : "Pause rotation");
         pauseBtn.innerHTML = m.userPaused ? PLAY_SVG : PAUSE_SVG;
@@ -493,7 +497,12 @@
       animating = false;
       history.replaceState(null, "", location.pathname + location.search);
       const focusBack = target && !target.hasAttribute("aria-hidden") ? target : lastFocus;
-      if (focusBack && document.contains(focusBack)) focusBack.focus({ preventScroll: true });
+      if (focusBack && document.contains(focusBack)) {
+        // Return focus for keyboard users, without freezing the row.
+        restoringFocus = true;
+        focusBack.focus({ preventScroll: true });
+        restoringFocus = false;
+      }
     };
 
     if (target && !reducedMotion) {
